@@ -224,13 +224,13 @@ public:
         emptyResultSize_ = resultStream_.Size();
     }
 
-    virtual void PacketReceived( const char *data, int size, 
+    virtual void ProcessPacket( const char *data, int size, 
 			const IpEndpointName& remoteEndpoint )
     {
         resultStream_.Clear();
         resultStream_ << osc::BeginBundle();
 
-        osc::OscPacketListener::PacketReceived( data, size, remoteEndpoint );
+        osc::OscPacketListener::ProcessPacket( data, size, remoteEndpoint );
 
         resultStream_ << osc::EndBundle;
 

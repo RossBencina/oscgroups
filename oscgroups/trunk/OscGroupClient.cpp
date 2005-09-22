@@ -744,7 +744,7 @@ public:
     {
     }
 
-    virtual void PacketReceived( const char *data, int size, 
+    virtual void ProcessPacket( const char *data, int size, 
 			const IpEndpointName& remoteEndpoint )
     {
         // for now we parse _all_ packets, and pass all those on to clients
@@ -758,7 +758,7 @@ public:
         // this would also allow us to reject packets from unknown sources
 
         
-        osc::OscPacketListener::PacketReceived( data, size, remoteEndpoint );
+        osc::OscPacketListener::ProcessPacket( data, size, remoteEndpoint );
                     
         if( remoteEndpoint != remoteServerEndpoint_ ){
          
@@ -780,7 +780,7 @@ public:
     {
     }
 
-	virtual void PacketReceived( const char *data, int size, 
+	virtual void ProcessPacket( const char *data, int size, 
 			const IpEndpointName& remoteEndpoint )
     {
         externalCommunicationsSender_.ForwardPacketToAllPeers( data, size );
