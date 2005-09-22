@@ -66,6 +66,6 @@ install_daemon : OscGroupServerStartStop.sh
 	update-rc.d OscGroupServer defaults
 
 clean:
-	rm -rf bin $(SERVEROBJECTS) $(CLIENTOJECTS)
+	rm -rf bin $(SERVEROBJECTS) $(CLIENTOBJECTS)
 
 
