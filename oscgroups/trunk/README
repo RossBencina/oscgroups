@@ -38,12 +38,13 @@ COMPILING
 ---------
 
 OSCgroups is implemented using oscpack, a simple C++ library for 
-packing and unpacking OSC messages. This release must be built with
-the acompanying version of oscpack which has not been released
-elsewhere yet.
+packing and unpacking OSC messages. In general you should try
+to build OSCgroups with a similarly timestamped snapshot of 
+oscpack.
 
 To compile oscgroups, unzip the oscgroups and oscpack archives
-to obtain the following  directory structure:
+(or check out from the svn repository) to obtain the following  
+directory structure:
 
 
 /oscgroups
