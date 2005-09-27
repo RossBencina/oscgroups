@@ -25,12 +25,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <cassert>
 #include <time.h>
 
-#include "OscReceivedElements.h"
-#include "OscOutboundPacketStream.h"
+#include "osc/OscReceivedElements.h"
+#include "osc/OscOutboundPacketStream.h"
 
-#include "UdpSocket.h"
-#include "OscPacketListener.h"
-#include "TimerListener.h"
+#include "ip/UdpSocket.h"
+#include "osc/OscPacketListener.h"
+#include "ip/TimerListener.h"
 
 #include "GroupServer.h"
 

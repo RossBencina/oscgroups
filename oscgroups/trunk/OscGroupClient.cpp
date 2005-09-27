@@ -28,14 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <assert.h>
 
 
-#include "OscReceivedElements.h"
-#include "OscOutboundPacketStream.h"
-#include "OscPacketListener.h"
+#include "osc/OscReceivedElements.h"
+#include "osc/OscOutboundPacketStream.h"
+#include "osc/OscPacketListener.h"
 
-#include "UdpSocket.h"
-#include "IpEndpointName.h"
-#include "PacketListener.h"
-#include "TimerListener.h"
+#include "ip/UdpSocket.h"
+#include "ip/IpEndpointName.h"
+#include "ip/PacketListener.h"
+#include "ip/TimerListener.h"
 
 #include "md5.h"
 

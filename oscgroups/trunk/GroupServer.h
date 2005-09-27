@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <set>
 #include <string>
 
-#include "IpEndpointName.h"
+#include "ip/IpEndpointName.h"
 
 class User;
 class Group;
