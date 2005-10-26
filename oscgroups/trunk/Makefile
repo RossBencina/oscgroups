@@ -38,7 +38,7 @@ SCRIPTS = \
     ./run_server.sh
 
 
-INCLUDES = -I../oscpack/ip -I../oscpack/osc
+INCLUDES = -I../oscpack
 COPTS  = -Wall -O3
 CDEBUG = -Wall -g 
 CXXFLAGS = $(COPTS) $(INCLUDES) -D$(ENDIANESS)
