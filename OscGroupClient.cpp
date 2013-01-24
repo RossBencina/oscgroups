@@ -218,8 +218,8 @@ class ExternalCommunicationsSender : public TimerListener {
         p << osc::BeginMessage( "/groupserver/user_alive" )
                     << userName_.c_str()
                     << userPassword_.c_str()
-                    << ~((long)localToServerEndpoint_.address)
-                    << localToServerEndpoint_.port
+                    << ~((osc::int32)localToServerEndpoint_.address)
+                    << (osc::int32)localToServerEndpoint_.port
                     << groupName_.c_str()
                     << groupPassword_.c_str()
                     << osc::EndMessage;
@@ -543,11 +543,11 @@ class ExternalSocketListener : public osc::OscPacketListener {
         osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
 
         const char *userName;
-        long privateAddress;
-        long privatePort;
-        long publicAddress;
-        long publicPort;
-        long secondsSinceLastAlive;
+        osc::int32 privateAddress;
+        osc::int32 privatePort;
+        osc::int32 publicAddress;
+        osc::int32 publicPort;
+        osc::int32 secondsSinceLastAlive;
 
         args >> userName >> privateAddress >> privatePort >>
                 publicAddress >> publicPort >> secondsSinceLastAlive;

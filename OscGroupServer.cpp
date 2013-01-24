@@ -91,7 +91,7 @@ class OscGroupServerListener
 
         osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
         const char *userName, *userPassword;
-        long privateAddress, privatePort;
+        osc::int32 privateAddress, privatePort;
 
         args >> userName >> userPassword >> privateAddress >> privatePort;
 
@@ -156,11 +156,11 @@ class OscGroupServerListener
         
         p << osc::BeginMessage( "/groupclient/user_info" )
             << user->name.c_str()
-            << ~((long)user->privateEndpoint.address)
-            << user->privateEndpoint.port
-            << ~((long)user->publicEndpoint.address)
-            << user->publicEndpoint.port
-            << (long)user->SecondsSinceLastAliveReceived( currentTime );
+            << ~((osc::int32)user->privateEndpoint.address)
+            << (osc::int32)user->privateEndpoint.port
+            << ~((osc::int32)user->publicEndpoint.address)
+            << (osc::int32)user->publicEndpoint.port
+            << (osc::int32)user->SecondsSinceLastAliveReceived( currentTime );
 
         for( User::const_group_iterator i = user->groups_begin();
                 i != user->groups_end(); ++i )
