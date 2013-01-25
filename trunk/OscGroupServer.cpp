@@ -19,11 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "OscGroupServer.h"
 
-#include <string.h>
+#include <cassert>
+#include <cstring>
+#include <ctime>
 #include <iostream>
 #include <fstream>
-#include <cassert>
-#include <time.h>
 
 #include "osc/OscReceivedElements.h"
 #include "osc/OscOutboundPacketStream.h"
@@ -38,12 +38,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static std::ostream& Log()
 {
     std::time_t t;
-    time( &t );
+    std::time( &t );
 
     // ctime() returns a constant width 26 char string including trailing \0
     // the fields are all constant width.
     char s[26];
-    strcpy( s, std::ctime( &t ) );
+    std::strcpy( s, std::ctime( &t ) );
     s[24] = '\0'; // remove trailing null
 
     std::cout << s << ": ";
@@ -79,7 +79,7 @@ class OscGroupServerListener
     #define IP_MTU_SIZE 1536
     char buffer_[IP_MTU_SIZE];
     osc::OutboundPacketStream resultStream_;
-    unsigned int emptyResultSize_;
+    std::size_t emptyResultSize_;
 
     void user_alive( const osc::ReceivedMessage& m, 
 				const IpEndpointName& remoteEndpoint )
@@ -172,6 +172,8 @@ class OscGroupServerListener
     void get_group_users_info( const osc::ReceivedMessage& m,
             const IpEndpointName& remoteEndpoint )
     {
+        (void) remoteEndpoint; // suppress unused parameter warning
+        
         // /groupserver/get_group_users_info group-name group-password
 
         osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
@@ -201,9 +203,9 @@ protected:
     {
         try{
 
-            if( strcmp( m.AddressPattern(), "/groupserver/user_alive" ) == 0 ){
+            if( std::strcmp( m.AddressPattern(), "/groupserver/user_alive" ) == 0 ){
                 user_alive( m, remoteEndpoint );
-            }else if( strcmp( m.AddressPattern(), "/groupserver/get_group_users_info" ) == 0 ){
+            }else if( std::strcmp( m.AddressPattern(), "/groupserver/get_group_users_info" ) == 0 ){
                 get_group_users_info( m, remoteEndpoint );
             }
 
@@ -324,16 +326,16 @@ int oscgroupserver_main(int argc, char* argv[])
         if( selector[0] == '-' && selector[1] != '\0' && selector[2] == '\0' ){
             switch( selector[1] ){
                 case 'p':
-                    port = atoi( value );
+                    port = std::atoi( value );
                     break;
                 case 't':
-                    timeoutSeconds = atoi( value );
+                    timeoutSeconds = std::atoi( value );
                     break;
                 case 'u':
-                    maxUsers = atoi( value );
+                    maxUsers = std::atoi( value );
                     break;
                 case 'g':
-                    maxGroups = atoi( value );
+                    maxGroups = std::atoi( value );
                     break;
                 case 'l':
                     logFile = value;

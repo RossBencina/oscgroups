@@ -20,12 +20,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "OscGroupClient.h"
 
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <string>
-#include <assert.h>
+#include <cassert>
 
 
 #include "osc/OscReceivedElements.h"
@@ -431,7 +431,7 @@ public:
 
     void ForwardPacketToAllPeers( const char *data, int size )
     {
-        int currentTime = time(0);
+        int currentTime = (int)std::time(0);
         
         for( std::vector<Peer>::iterator i = peers_.begin(); i != peers_.end(); ++i ){
 
@@ -447,7 +447,7 @@ public:
     
     virtual void TimerExpired()
     {        
-        int currentTime = time(0);
+        int currentTime = (int)std::time(0);
 
         SendAlive( currentTime );
 
@@ -484,11 +484,11 @@ class ExternalSocketListener : public osc::OscPacketListener {
 
         args >> userName >> userPassword >> status;
 
-        if( strcmp( userName, userName_ ) == 0
-                &&  strcmp( userPassword, userPassword_ ) == 0 ){
+        if( std::strcmp( userName, userName_ ) == 0
+                &&  std::strcmp( userPassword, userPassword_ ) == 0 ){
             // message really is for us
 
-            if( strcmp( status, "ok" ) == 0 ){
+            if( std::strcmp( status, "ok" ) == 0 ){
 
                 std::cout << "ok: user '" << userName << "' is registered with server\n";
 
@@ -513,13 +513,13 @@ class ExternalSocketListener : public osc::OscPacketListener {
 
         args >> userName >> userPassword >> groupName >> groupPassword >> status;
 
-        if( strcmp( userName, userName_ ) == 0
-                && strcmp( userPassword, userPassword_ ) == 0
-                && strcmp( groupName, groupName_ ) == 0
-                && strcmp( groupPassword, groupPassword_ ) == 0 ){
+        if( std::strcmp( userName, userName_ ) == 0
+                && std::strcmp( userPassword, userPassword_ ) == 0
+                && std::strcmp( groupName, groupName_ ) == 0
+                && std::strcmp( groupPassword, groupPassword_ ) == 0 ){
             // message really is for us
 
-            if( strcmp( status, "ok" ) == 0 ){
+            if( std::strcmp( status, "ok" ) == 0 ){
 
                 std::cout << "ok: user '" << userName << "' is a member of group '" << groupName << "'\n";
 
@@ -570,7 +570,7 @@ class ExternalSocketListener : public osc::OscPacketListener {
             << " public: " << publicAddressString
             << "\n";
                 
-        if( strcmp( userName, userName_ ) == 0 )
+        if( std::strcmp( userName, userName_ ) == 0 )
             return; // discard info referring to ourselves
 
 
@@ -578,7 +578,7 @@ class ExternalSocketListener : public osc::OscPacketListener {
         while( !args.Eos() ){
             const char *groupName;
             args >> groupName;
-            if( strcmp( groupName, groupName_ ) == 0 ){
+            if( std::strcmp( groupName, groupName_ ) == 0 ){
                 userIsInGroup = true;
                 break;
             }
@@ -703,13 +703,13 @@ protected:
     {
         try{
     
-            if( strcmp( m.AddressPattern(), "/groupclient/user_info" ) == 0 ){
+            if( std::strcmp( m.AddressPattern(), "/groupclient/user_info" ) == 0 ){
                 user_info( m, remoteEndpoint );
-            }else if( strcmp( m.AddressPattern(), "/groupclient/ping" ) == 0 ){
+            }else if( std::strcmp( m.AddressPattern(), "/groupclient/ping" ) == 0 ){
                 ping( m, remoteEndpoint );
-            }else if( strcmp( m.AddressPattern(), "/groupclient/user_alive_status" ) == 0 ){
+            }else if( std::strcmp( m.AddressPattern(), "/groupclient/user_alive_status" ) == 0 ){
                 user_alive_status( m, remoteEndpoint );
-            }else if( strcmp( m.AddressPattern(), "/groupclient/user_group_status" ) == 0 ){
+            }else if( std::strcmp( m.AddressPattern(), "/groupclient/user_group_status" ) == 0 ){
                 user_group_status( m, remoteEndpoint );
             }
 
@@ -783,6 +783,7 @@ public:
 	virtual void ProcessPacket( const char *data, int size, 
 			const IpEndpointName& remoteEndpoint )
     {
+        (void) remoteEndpoint; // suppress unused parameter warning
         externalCommunicationsSender_.ForwardPacketToAllPeers( data, size );
     }
 };
@@ -800,7 +801,7 @@ void MakeHashString( char *dest, const char *src )
 {
     MD5_CTX md5Context;
     MD5Init( &md5Context );
-    MD5Update( &md5Context, (unsigned char*)src, strlen(src) );
+    MD5Update( &md5Context, (unsigned char*)src, std::strlen(src) );
     unsigned char numericHash[16];
     MD5Final( numericHash, &md5Context );
     for( int i=0; i < 16; ++i ){
@@ -866,9 +867,9 @@ int oscgroupclient_main(int argc, char* argv[])
         }
 
 		IpEndpointName serverRemoteEndpoint( argv[1], atoi( argv[2] ) );
-        int localToRemotePort = atoi( argv[3] );
-        int localTxPort = atoi( argv[4] );
-        int localRxPort = atoi( argv[5] );
+        int localToRemotePort = std::atoi( argv[3] );
+        int localTxPort = std::atoi( argv[4] );
+        int localRxPort = std::atoi( argv[5] );
         const char *userName = argv[6];
         const char *userPassword = argv[7];
         const char *groupName = argv[8];

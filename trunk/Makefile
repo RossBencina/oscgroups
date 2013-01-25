@@ -40,8 +40,8 @@ SCRIPTS = \
 
 
 INCLUDES = -I../oscpack
-COPTS  = -Wall -O3
-CDEBUG = -Wall -g 
+COPTS  = -Wall -Wextra -O3
+CDEBUG = -Wall -Wextra -g 
 CXXFLAGS = $(COPTS) $(INCLUDES) -D$(ENDIANESS)
 LIBS = -lpthread
 
