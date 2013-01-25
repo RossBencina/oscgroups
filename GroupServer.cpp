@@ -22,10 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string>
 #include <set>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 #include <algorithm>
 #include <iterator>
-#include <assert.h>
+#include <cassert>
 
 #include "ip/NetworkingUtils.h"
 
@@ -39,12 +39,12 @@ TODO:
 static std::ostream& Log()
 {
     std::time_t t;
-    time( &t );
+    std::time( &t );
 
     // ctime() returns a constant width 26 char string including trailing \0
     // the fields are all constant width.
     char s[26];
-    strcpy( s, std::ctime( &t ) );
+    std::strcpy( s, std::ctime( &t ) );
     s[24] = '\0'; // remove trailing null
 
     std::cout << s << ": ";
@@ -97,7 +97,7 @@ User *GroupServer::FindUser( const char *userName )
 
 void GroupServer::PurgeStaleUsers()
 {
-    unsigned long currentTime = time(0);
+    unsigned long currentTime = (unsigned long)std::time(0);
     
     for( std::map< std::string, User* >::iterator i = users_.begin();
             i != users_.end(); /* nothing */ ){
