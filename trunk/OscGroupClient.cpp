@@ -824,16 +824,18 @@ void MakeHashString( char *dest, const char *src )
     }
     *p = '\0';
 
-    printf( "src: %s dest: %s\n", src, dest );
+    //printf( "src: %s dest: %s\n", src, dest );
 }
 
 void SanityCheckMd5()
 {
+    // if anything in this function fails there's a problem with your build configuration
+    
     // check that the size of types declared in md5.h are correct
     assert( sizeof(UINT2) == 2 );
     assert( sizeof(UINT4) == 4 );
 
-    // sanity check that the hash is working.
+    // sanity check that the hash is working by comparing to a known good hash:
     char testHash[33];
     MakeHashString( testHash, "0123456789" );
     assert( std::strcmp( testHash, "781e5e245d69b566979b86e28d23f2c7" ) == 0 );
@@ -885,6 +887,8 @@ void RunOscGroupClientUntilSigInt(
 
 int oscgroupclient_main(int argc, char* argv[])
 {
+    SanityCheckMd5();
+    
     try{
         if( argc != 10 ){
             std::cout << "usage: oscgroupclient serveraddress serverport localtoremoteport localtxport localrxport username password groupname grouppassword\n";
