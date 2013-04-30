@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // assume IPV4 addresses.
 
 
+#include <ctime>
 #include <map>
 #include <set>
 #include <string>
@@ -56,10 +57,10 @@ public:
     IpEndpointName privateEndpoint;
 	IpEndpointName publicEndpoint;
 
-    unsigned long lastAliveMessageArrivalTime;
+    std::time_t lastAliveMessageArrivalTime;
 
-    unsigned long SecondsSinceLastAliveReceived( unsigned long currentTime )
-            { return currentTime - lastAliveMessageArrivalTime; }
+    unsigned long SecondsSinceLastAliveReceived( std::time_t currentTime )
+            { return (unsigned long)std::difftime( currentTime, lastAliveMessageArrivalTime ); }
 
     bool IsMemberOf( Group *group ) const
             { return groups_.count( group ) == 1; }
@@ -111,6 +112,10 @@ class GroupServer{
     void RemoveUserReferenceFromGroup( User *user, Group* group );
     void SeparateUserFromGroup( User *user, Group* group );
     void SeparateUserFromAllGroups( User *user );
+
+    GroupServer(); // no default ctor
+    GroupServer( const GroupServer& ); // no copy ctor
+    GroupServer& operator=( const GroupServer& ); // no assignment operator
 
 public:
     GroupServer( int timeoutSeconds, int maxUsers, int maxGroups );
