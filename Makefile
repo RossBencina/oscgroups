@@ -6,12 +6,17 @@ SERVER=OscGroupServer
 # Apple Intel: OSC_HOST_LITTLE_ENDIAN
 # Apple PowerPC: OSC_HOST_BIG_ENDIAN
 # Win32: OSC_HOST_LITTLE_ENDIAN
-# i386 LinuX: OSC_HOST_LITTLE_ENDIAN
+# i386 Linux: OSC_HOST_LITTLE_ENDIAN
 
 ENDIANESS=OSC_HOST_LITTLE_ENDIAN
 
+INCLUDES := -I../oscpack
+COPTS  := -Wall -Wextra -O3
+CDEBUG := -Wall -Wextra -g 
+CXXFLAGS := $(COPTS) $(INCLUDES) -D$(ENDIANESS)
+LIBS := -lpthread
 
-SERVERSOURCES = \
+SERVERSOURCES := \
 	../oscpack/osc/OscTypes.cpp  \
 	../oscpack/osc/OscOutboundPacketStream.cpp \
 	../oscpack/osc/OscReceivedElements.cpp \
@@ -20,9 +25,9 @@ SERVERSOURCES = \
 	../oscpack/ip/posix/UdpSocket.cpp \
 	./GroupServer.cpp \
 	./OscGroupServer.cpp
-SERVEROBJECTS = $(SERVERSOURCES:.cpp=.o)
+SERVEROBJECTS := $(SERVERSOURCES:.cpp=.o)
 
-CLIENTSOURCES = \
+CLIENTSOURCES := \
 	../oscpack/osc/OscTypes.cpp \
 	../oscpack/osc/OscOutboundPacketStream.cpp \
 	../oscpack/osc/OscReceivedElements.cpp \
@@ -31,19 +36,12 @@ CLIENTSOURCES = \
 	../oscpack/ip/posix/UdpSocket.cpp \
 	./OscGroupClient.cpp \
 	./md5.cpp 
-CLIENTOBJECTS = $(CLIENTSOURCES:.cpp=.o)
+CLIENTOBJECTS := $(CLIENTSOURCES:.cpp=.o)
 
-SCRIPTS = \
+SCRIPTS := \
     ./OscGroupServerStartStop.sh \
     ./run_client.sh \
     ./run_server.sh
-
-
-INCLUDES = -I../oscpack
-COPTS  = -Wall -Wextra -O3
-CDEBUG = -Wall -Wextra -g 
-CXXFLAGS = $(COPTS) $(INCLUDES) -D$(ENDIANESS)
-LIBS = -lpthread
 
 all:	server client
 
@@ -54,7 +52,6 @@ server : $(SERVEROBJECTS)
 client : $(CLIENTOBJECTS)
 	@if [ ! -d bin ] ; then mkdir bin ; fi
 	$(CXX) -o bin/$(CLIENT) $+ $(LIBS) 
-
 
 # set executable bit on scripts
 scripts:

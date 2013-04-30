@@ -150,7 +150,7 @@ class OscGroupServerListener
     }
 
     void MakeUserInfoMessage( osc::OutboundPacketStream& p,
-            User *user, unsigned long currentTime )
+            User *user, std::time_t currentTime )
     {
         // addresses are transmitted as ones complement (bit inverse)
         // to avoid problems with buggy NATs trying to re-write addresses
@@ -184,7 +184,7 @@ class OscGroupServerListener
 
         Group *group = groupServer_.FindGroup( groupName );
         if( group && group->password.compare( groupPassword ) == 0 ){
-            unsigned long currentTime = time(0);
+            std::time_t currentTime = time(0);
             
             for( Group::const_user_iterator i = group->users_begin();
                     i != group->users_end(); ++i )

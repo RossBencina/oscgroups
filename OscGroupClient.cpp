@@ -129,13 +129,13 @@ struct PeerEndpoint{
 
     IpEndpointName endpointName;
     bool pingReceived;
-    int lastPingReceiveTime;
+    std::time_t lastPingReceiveTime;
 
     int sentPingsCount;
-    int lastPingSendTime;
+    std::time_t lastPingSendTime;
 
     int forwardedPacketsCount;
-    int lastPacketForwardTime;
+    std::time_t lastPacketForwardTime;
 };
 
 
@@ -146,7 +146,7 @@ struct Peer{
         
     std::string name;
 
-    int lastUserInfoReceiveTime;
+    std::time_t lastUserInfoReceiveTime;
     int secondsSinceLastAliveReceivedByServer;
     
     /*
@@ -164,17 +164,17 @@ struct Peer{
     PeerEndpoint pingEndpoint;
 
     int pingPeriodCount;
-    int lastPingPeriodTime;
+    std::time_t lastPingPeriodTime;
 
-    int MostRecentActivityTime() const
+    std::time_t MostRecentActivityTime() const
     {
         // the most recent activity time is the most recent time either the
         // server heard from the peer, or we received a ping from the peer
     
-        int lastUserInfoReceivedByTheServerTime =
-                lastUserInfoReceiveTime - secondsSinceLastAliveReceivedByServer;
+        std::time_t lastUserInfoReceivedByTheServerTime =
+                lastUserInfoReceiveTime - secondsSinceLastAliveReceivedByServer; // FIXME: assumes time_t is in seconds
 
-        int result = lastUserInfoReceivedByTheServerTime;
+        std::time_t result = lastUserInfoReceivedByTheServerTime;
         if( privateEndpoint.pingReceived )
             result = std::max( result, privateEndpoint.lastPingReceiveTime );
         if( publicEndpoint.pingReceived )
@@ -195,7 +195,7 @@ class ExternalCommunicationsSender : public TimerListener {
     #define IP_MTU_SIZE 1536
     char aliveBuffer_[IP_MTU_SIZE];
     int aliveSize_;
-    int lastAliveSentTime_;
+    std::time_t lastAliveSentTime_;
     
     char pingBuffer_[IP_MTU_SIZE];
     int pingSize_;
@@ -234,10 +234,10 @@ class ExternalCommunicationsSender : public TimerListener {
         aliveSize_ = p.Size();
     }
 
-    void SendAlive( int currentTime )
+    void SendAlive( std::time_t currentTime )
     {
-        int timeSinceLastAliveSent = currentTime - lastAliveSentTime_;
-        if( timeSinceLastAliveSent >= IDLE_PING_PERIOD_SECONDS ){
+        int secondsSinceLastAliveSent = (int)difftime(currentTime, lastAliveSentTime_);
+        if( secondsSinceLastAliveSent >= IDLE_PING_PERIOD_SECONDS ){
            
             externalSocket_.SendTo( remoteServerEndpoint_, aliveBuffer_, aliveSize_ );
 
@@ -260,7 +260,7 @@ class ExternalCommunicationsSender : public TimerListener {
         pingSize_ = p.Size();
     }
 
-    void SendPing( PeerEndpoint& to, int currentTime )
+    void SendPing( PeerEndpoint& to, std::time_t currentTime )
 	{
 		char addressString[ IpEndpointName::ADDRESS_AND_PORT_STRING_LENGTH ];
 		to.endpointName.AddressAndPortAsString( addressString );
@@ -292,7 +292,7 @@ class ExternalCommunicationsSender : public TimerListener {
     }
 
 
-    void PollPeerPingTimer( Peer& peer, int currentTime, bool executeNowIgnoringTimeouts=false )
+    void PollPeerPingTimer( Peer& peer, std::time_t currentTime, bool executeNowIgnoringTimeouts=false )
     {
         bool noPingsReceivedYet =
                 !peer.privateEndpoint.pingReceived
@@ -303,7 +303,7 @@ class ExternalCommunicationsSender : public TimerListener {
             // check whether we should attempt to re-establish the link
             // due to no traffic arriving for PEER_ESTABLISHMENT_RETRY_TIME_SECONDS
 
-            int mostRecentPingTime = 0;
+            std::time_t mostRecentPingTime = 0;
             if( peer.privateEndpoint.pingReceived )
                 mostRecentPingTime = std::max( mostRecentPingTime, peer.privateEndpoint.lastPingReceiveTime );
             if( peer.publicEndpoint.pingReceived )
@@ -311,7 +311,7 @@ class ExternalCommunicationsSender : public TimerListener {
             if( peer.pingEndpoint.pingReceived )
                 mostRecentPingTime = std::max( mostRecentPingTime, peer.pingEndpoint.lastPingReceiveTime );
             
-            if( currentTime - mostRecentPingTime > PEER_ESTABLISHMENT_RETRY_TIME_SECONDS ){
+            if( (int)std::difftime(currentTime, mostRecentPingTime) > PEER_ESTABLISHMENT_RETRY_TIME_SECONDS ){
 
                 peer.pingPeriodCount = 0;
                 executeNowIgnoringTimeouts = true;
@@ -335,7 +335,7 @@ class ExternalCommunicationsSender : public TimerListener {
                 pingPeriod = IDLE_PING_PERIOD_SECONDS;
             }
 
-            if( currentTime >= peer.lastPingPeriodTime + pingPeriod
+            if( currentTime >= (peer.lastPingPeriodTime + pingPeriod)
                     || executeNowIgnoringTimeouts ){
                 SendPing( peer.privateEndpoint, currentTime );
                 SendPing( peer.publicEndpoint, currentTime );
@@ -365,27 +365,27 @@ class ExternalCommunicationsSender : public TimerListener {
 
                 }else{
 
-                    int timeSinceLastPing = currentTime - peerEndpointToUse->lastPingSendTime;
+                    int secondsSinceLastPing = (int)std::difftime(currentTime, peerEndpointToUse->lastPingSendTime);
 
                     if( peerEndpointToUse->forwardedPacketsCount == 0 ){
 
-                        if( timeSinceLastPing >= IDLE_PING_PERIOD_SECONDS ){
+                        if( secondsSinceLastPing >= IDLE_PING_PERIOD_SECONDS ){
                         
                             sendPing = true;
                         }
 
                     }else{
 
-                        int timeSinceLastForwardedTraffic =
-                                currentTime - peerEndpointToUse->lastPacketForwardTime;
+                        int secondsSinceLastForwardedTraffic =
+                                (int)std::difftime(currentTime, peerEndpointToUse->lastPacketForwardTime);
 
-                        if( timeSinceLastForwardedTraffic >= IDLE_PING_PERIOD_SECONDS ){
+                        if( secondsSinceLastForwardedTraffic >= IDLE_PING_PERIOD_SECONDS ){
 
-                            if( timeSinceLastPing >= IDLE_PING_PERIOD_SECONDS ){
+                            if( secondsSinceLastPing >= IDLE_PING_PERIOD_SECONDS ){
                                 sendPing = true;
                             }
 
-                        }else if( timeSinceLastPing >= ACTIVE_PING_PERIOD_SECONDS ){
+                        }else if( secondsSinceLastPing >= ACTIVE_PING_PERIOD_SECONDS ){
                             sendPing = true;
                         }
                     }
@@ -399,6 +399,10 @@ class ExternalCommunicationsSender : public TimerListener {
             }
         }
     }
+
+    ExternalCommunicationsSender(); // no default ctor
+    ExternalCommunicationsSender( const ExternalCommunicationsSender& ); // no copy ctor
+    ExternalCommunicationsSender& operator=( const ExternalCommunicationsSender& ); // no assignment operator
     
 public:
     ExternalCommunicationsSender( UdpSocket& externalSocket,
@@ -422,7 +426,7 @@ public:
     }
 
 
-    void RestartPeerCommunicationEstablishment( Peer& peer, int currentTime )
+    void RestartPeerCommunicationEstablishment( Peer& peer, std::time_t currentTime )
     {
         peer.pingPeriodCount = 0;
         PollPeerPingTimer( peer, currentTime, true );
@@ -431,7 +435,7 @@ public:
 
     void ForwardPacketToAllPeers( const char *data, int size )
     {
-        int currentTime = (int)std::time(0);
+        std::time_t currentTime = std::time(0);
         
         for( std::vector<Peer>::iterator i = peers_.begin(); i != peers_.end(); ++i ){
 
@@ -447,7 +451,7 @@ public:
     
     virtual void TimerExpired()
     {        
-        int currentTime = (int)std::time(0);
+        std::time_t currentTime = std::time(0);
 
         SendAlive( currentTime );
 
@@ -455,7 +459,7 @@ public:
         std::vector<Peer>::iterator i = peers_.begin();
         while( i != peers_.end() ){
 
-            if( currentTime - i->MostRecentActivityTime() > PURGE_PEER_TIMEOUT_SECONDS ){
+            if( difftime(currentTime,i->MostRecentActivityTime()) > PURGE_PEER_TIMEOUT_SECONDS ){
 
                 i = peers_.erase( i );
 
@@ -626,7 +630,7 @@ class ExternalSocketListener : public osc::OscPacketListener {
 
             peer->secondsSinceLastAliveReceivedByServer = secondsSinceLastAlive;
 
-            int currentTime = time(0);
+            std::time_t currentTime = std::time(0);
             peer->lastUserInfoReceiveTime = currentTime;
 
             if( restartPeerCommunicationEstablishment )
@@ -663,7 +667,7 @@ class ExternalSocketListener : public osc::OscPacketListener {
             if( i->name.compare( userName ) == 0 ){
                 bool restartPeerCommunicationEstablishment = false;
 
-                int currentTime = time(0);
+                std::time_t currentTime = std::time(0);
 
 				if( remoteEndpoint == i->privateEndpoint.endpointName ){
 
@@ -729,6 +733,10 @@ protected:
 
     ExternalCommunicationsSender& externalCommunicationsSender_;
 
+    ExternalSocketListener(); // no default ctor
+    ExternalSocketListener( const ExternalSocketListener& ); // no copy ctor
+    ExternalSocketListener& operator=( const ExternalSocketListener& ); // no assignment operator
+
 public:
     ExternalSocketListener( const IpEndpointName& remoteServerEndpoint, 
 			int localRxPort, const char *userName, const char *userPassword,
@@ -774,6 +782,10 @@ class LocalTxSocketListener : public PacketListener {
 
     ExternalCommunicationsSender& externalCommunicationsSender_;
     
+    LocalTxSocketListener(); // no default ctor
+    LocalTxSocketListener( const LocalTxSocketListener& ); // no copy ctor
+    LocalTxSocketListener& operator=( const LocalTxSocketListener& ); // no assignment operator
+
 public:
     LocalTxSocketListener( ExternalCommunicationsSender& externalCommunicationsSender )
         : externalCommunicationsSender_( externalCommunicationsSender )
@@ -804,14 +816,28 @@ void MakeHashString( char *dest, const char *src )
     MD5Update( &md5Context, (unsigned char*)src, std::strlen(src) );
     unsigned char numericHash[16];
     MD5Final( numericHash, &md5Context );
+    char *p = dest;
     for( int i=0; i < 16; ++i ){
 
-        *dest++ = IntToHexDigit(((unsigned char)numericHash[i] >> 4) & 0x0F);
-        *dest++ = IntToHexDigit((unsigned char)numericHash[i] & 0x0F);
+        *p++ = IntToHexDigit(((unsigned char)numericHash[i] >> 4) & 0x0F);
+        *p++ = IntToHexDigit((unsigned char)numericHash[i] & 0x0F);
     }
-    *dest = '\0';
+    *p = '\0';
+
+    printf( "src: %s dest: %s\n", src, dest );
 }
 
+void SanityCheckMd5()
+{
+    // check that the size of types declared in md5.h are correct
+    assert( sizeof(UINT2) == 2 );
+    assert( sizeof(UINT4) == 4 );
+
+    // sanity check that the hash is working.
+    char testHash[33];
+    MakeHashString( testHash, "0123456789" );
+    assert( std::strcmp( testHash, "781e5e245d69b566979b86e28d23f2c7" ) == 0 );
+}
 
 void RunOscGroupClientUntilSigInt( 
 		const IpEndpointName& serverRemoteEndpoint, 

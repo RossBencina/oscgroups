@@ -98,7 +98,7 @@ User *GroupServer::FindUser( const char *userName )
 
 void GroupServer::PurgeStaleUsers()
 {
-    unsigned long currentTime = (unsigned long)std::time(0);
+    std::time_t currentTime = std::time(0);
     
     for( std::map< std::string, User* >::iterator i = users_.begin();
             i != users_.end(); /* nothing */ ){
