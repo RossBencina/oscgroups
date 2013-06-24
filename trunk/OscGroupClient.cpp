@@ -194,11 +194,11 @@ static std::vector<Peer> peers_;
 class ExternalCommunicationsSender : public TimerListener {
     #define IP_MTU_SIZE 1536
     char aliveBuffer_[IP_MTU_SIZE];
-    int aliveSize_;
+    std::size_t aliveSize_;
     std::time_t lastAliveSentTime_;
     
     char pingBuffer_[IP_MTU_SIZE];
-    int pingSize_;
+    std::size_t pingSize_;
 
     UdpSocket& externalSocket_;
     IpEndpointName remoteServerEndpoint_;
@@ -813,7 +813,7 @@ void MakeHashString( char *dest, const char *src )
 {
     MD5_CTX md5Context;
     MD5Init( &md5Context );
-    MD5Update( &md5Context, (unsigned char*)src, std::strlen(src) );
+    MD5Update( &md5Context, (unsigned char*)src, (unsigned int)std::strlen(src) );
     unsigned char numericHash[16];
     MD5Final( numericHash, &md5Context );
     char *p = dest;
