@@ -1,5 +1,5 @@
 OSCgroups client and server
-(c) Ross Bencina 2005 <rossb@audiomulch.com>
+(c) Ross Bencina 2005-2013 <rossb@audiomulch.com>
 
 
 OSCgroups is a system for routing OSC messages between a group of 
@@ -57,9 +57,6 @@ directory structure:
     /ip
     ....
 
-If you're on the Mac or some other non-Intel platform you should
-check the Makefile and change the line which specifies the endianess
-for oscpack otherwise it wont work..
 
 On Unix just type 
 
@@ -70,6 +67,10 @@ should end up in the bin directory. If you encounter any compilation
 errors please email me. For other platforms take a look at the 
 makefile and work out which source files you need to build and which 
 include directories need to be on your include path.
+
+There is a batch file for building with MinGW on Windows (make.MinGW32.bat)
+
+There is a CMakeLists.txt file that you can use with CMake.
 
 OSCgroups should compile everywhere oscpack compiles, which is at 
 least Windows, Linux and MacOSX.
