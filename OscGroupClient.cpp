@@ -39,6 +39,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "md5.h"
 
+#if defined(__BORLANDC__) // workaround for BCB4 release build intrinsics bug
+namespace std {
+using ::__strcmp__;  // avoid error: E2316 '__strcmp__' is not a member of 'std'.
+}
+#endif
 
 /*
 	There are three sockets:
@@ -236,7 +241,7 @@ class ExternalCommunicationsSender : public TimerListener {
 
     void SendAlive( std::time_t currentTime )
     {
-        int secondsSinceLastAliveSent = (int)difftime(currentTime, lastAliveSentTime_);
+        int secondsSinceLastAliveSent = (int)std::difftime(currentTime, lastAliveSentTime_);
         if( secondsSinceLastAliveSent >= IDLE_PING_PERIOD_SECONDS ){
            
             externalSocket_.SendTo( remoteServerEndpoint_, aliveBuffer_, aliveSize_ );
@@ -459,7 +464,7 @@ public:
         std::vector<Peer>::iterator i = peers_.begin();
         while( i != peers_.end() ){
 
-            if( difftime(currentTime,i->MostRecentActivityTime()) > PURGE_PEER_TIMEOUT_SECONDS ){
+            if( std::difftime(currentTime,i->MostRecentActivityTime()) > PURGE_PEER_TIMEOUT_SECONDS ){
 
                 i = peers_.erase( i );
 
